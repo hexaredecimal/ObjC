@@ -1,5 +1,3 @@
- The original BSD license contained a clause not found in later licenses, known as the "advertising clause". This clause eventually became controversial, as it required authors of all works deriving from a BSD-licensed work to include an acknowledgment of the original source in all advertising material. This was clause number 3 in the original license text:[6]
-
     Copyright (c) 2024, Gama Sibusiso Vincent All rights reserved.
 
     Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
