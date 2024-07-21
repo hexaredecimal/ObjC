@@ -652,7 +652,7 @@ string_literal = ('L' | '@') '"' s_char* '"';
 */
 
 STRING_LITERAL
-    :  [L@] STRING
+    :  [L@]? STRING
     ;
 
 fragment
