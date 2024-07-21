@@ -17,7 +17,7 @@ public class Pointer extends Type {
 	
 	@Override
 	public String toString() {
-		return "w"; // QBE pointers are weird :)
+		return internal.toString().concat("*");
 	}
 	
 	@Override
