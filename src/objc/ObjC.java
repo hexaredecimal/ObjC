@@ -16,18 +16,16 @@ public class ObjC {
 	 * @param args the command line arguments
 	 */
 	public static void main(String[] args) throws IOException {
-		CharStream input =
-						CharStreams.fromFileName("test/0.m");
+		CharStream input
+			= CharStreams.fromFileName("test/0.m");
 
-		ObjCLexer lexer =
-						new ObjCLexer(input);
-		CommonTokenStream tokens =
-						new CommonTokenStream(lexer);
+		ObjectiveCLexer lexer = new ObjectiveCLexer(input);
+		CommonTokenStream tokens
+			= new CommonTokenStream(lexer);
 
-		ObjCParser parser = new ObjCParser(tokens);
-		var program = parser.program();
-
+		ObjectiveCParser parser = new ObjectiveCParser(tokens);
+		var program = parser.translationUnit();
 		Walker walker = new Walker();
-		walker.walkProgram(program);
+		walker.walkTranslationUnit(program);
 	}
 }
