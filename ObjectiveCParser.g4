@@ -520,7 +520,7 @@ typeSpecifier
     | genericTypeSpecifier
     | structOrUnionSpecifier
     | enumSpecifier
-    | typeSpecifier pointer
+    | typeSpecifier '*'+
     ;
 
 typeofExpression
