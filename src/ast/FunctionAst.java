@@ -11,7 +11,7 @@ import rtc.Type;
 public class FunctionAst extends Ast {
 	private List<ParamAst> params; 
 	private String name; 
-	private Type type;
+	private TypeAst type;
 
 	public FunctionAst(String name, List<ParamAst> params) {
 		this.name = name; 
@@ -19,11 +19,9 @@ public class FunctionAst extends Ast {
 		this.type = null;
 	}
 
-	public void setType(Type type) {
-		this.type
-						= type;
+	public void setType(TypeAst type) {
+		this.type = type;
 	}
-
 
 	@Override
 	public String toString() {
