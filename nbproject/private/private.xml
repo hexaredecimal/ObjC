@@ -5,8 +5,11 @@
         <group>
             <file>file:/home/hexaredecimal/ObjC/ObjectiveCParser.g4</file>
             <file>file:/home/hexaredecimal/ObjC/src/backend/Walker.java</file>
-            <file>file:/home/hexaredecimal/ObjC/build.xml</file>
+            <file>file:/home/hexaredecimal/ObjC/src/ast/GroupAst.java</file>
+            <file>file:/home/hexaredecimal/ObjC/ObjectiveCLexer.g4</file>
             <file>file:/home/hexaredecimal/ObjC/src/objc/ObjC.java</file>
+            <file>file:/home/hexaredecimal/ObjC/test/0.m</file>
+            <file>file:/home/hexaredecimal/ObjC/src/ast/VariableAst.java</file>
         </group>
     </open-files>
 </project-private>
