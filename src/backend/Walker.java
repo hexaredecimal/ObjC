@@ -1,5 +1,6 @@
 package backend;
 
+import ast.AssignmentAst;
 import ast.CharAst;
 import ast.Ast;
 import ast.BinaryExpressionAst;
@@ -52,22 +53,23 @@ public class Walker {
 		// Move all variable declarations to the top of the AST so that vars
 		// can be defined even if they are declared later in the programm 
 
-		List<Ast> var_decls = null; 
+		List<Ast> var_decls = null;
 		if (!compound.declaration().isEmpty()) {
 			var decls = compound.declaration();
 			for (var dec : decls) {
 				var vars = this.walkDeclaration(dec);
-				if (var_decls == null) 
-					var_decls = vars; 
-				else 
+				if (var_decls == null) {
+					var_decls = vars;
+				} else {
 					var_decls.addAll(vars);
+				}
 			}
 		}
 
 		System.out.println("{");
-		var_decls.forEach(v -> {
-			System.out.print(v.toString().indent(4));
-		});
+			var_decls.forEach(v -> {
+				System.out.print(v.toString().indent(4));
+			});
 		System.out.println("}");
 	}
 
@@ -83,11 +85,10 @@ public class Walker {
 		if (vardecl.declarationSpecifiers() != null && vardecl.initDeclaratorList() != null) {
 			var declspec = vardecl.declarationSpecifiers();
 			var type = this.walkDeclarationSpecifiers(declspec);
-
 			var inits = vardecl.initDeclaratorList();
 			var vars = this.walkInitDeclaratorList(inits);
-			for (var v: vars) {
-				((VariableAst)v).setType((TypeAst) type);
+			for (var v : vars) {
+				((VariableAst) v).setType((TypeAst) type);
 			}
 			return vars;
 		} else if (vardecl.declarationSpecifiers() != null) {
@@ -104,7 +105,7 @@ public class Walker {
 			var initdecllist = decllist.initDeclarator();
 			List<Ast> vars = new ArrayList<>();
 			for (var initdecl : initdecllist) {
-				vars.add(this.walkInitDeclarator(initdecl));
+				vars.addAll(this.walkInitDeclarator(initdecl));
 			}
 
 			return vars;
@@ -112,7 +113,8 @@ public class Walker {
 			List<Ast> vars = new ArrayList<>();
 			var initdecllist = decllist.initDeclarator();
 			for (var initdecl : initdecllist) {
-				vars.add(this.walkInitDeclarator(initdecl));
+				var decl = this.walkInitDeclarator(initdecl);
+				vars.addAll(decl);
 			}
 			return vars;
 		}
@@ -120,23 +122,29 @@ public class Walker {
 		return null;
 	}
 
-	public Ast walkInitDeclarator(InitDeclaratorContext initdecl) {
+	public List<Ast> walkInitDeclarator(InitDeclaratorContext initdecl) {
+		List<Ast> vars = new ArrayList<>();
 		if (initdecl.ASSIGNMENT() != null && initdecl.declarator() != null && initdecl.initializer() != null) {
 			// Full variable declaration
 			// eg: int x = 10 * 2; 
 			var id = this.walkDeclarator(initdecl.declarator());
 			var init = this.walkInitializer(initdecl.initializer());
 			var v = new VariableAst((IdentifierAst) id);
+			if (init instanceof AssignmentAst assign) {
+				var a = assign.toVariable();
+				vars.addAll(a);
+			}
 			v.setValue(init);
-			return v;
+			vars.add(v);
 		} else if (initdecl.ASSIGNMENT() == null && initdecl.declarator() != null) {
 			// Variable declaration without an initializer
 			// eg: int x; 
 			var id = this.walkDeclarator(initdecl.declarator());
 			var v = new VariableAst((IdentifierAst) id);
+			vars.add(v);
 		}
 
-		return null;
+		return vars;
 	}
 
 	public Ast walkInitializer(InitializerContext init) {
@@ -191,9 +199,44 @@ public class Walker {
 			return this.constructBinaryAst(expr, "|");
 		} else if (expr.BITXOR() != null) {
 			return this.constructBinaryAst(expr, "^");
+		} else if (expr.unaryExpression() != null && expr.assignmentOperator() != null && !expr.expression().isEmpty()) {
+			return this.walkAssignmentExpression(expr.unaryExpression(), expr.assignmentOperator(), expr.expression().getFirst());
 		}
 
 		return null;
+	}
+
+	public Ast walkAssignmentExpression(UnaryExpressionContext lhs, AssignmentOperatorContext assign, ExpressionContext rhs) {
+		var left = this.walkUnaryExpression(lhs);
+		var right = this.walkExpression(rhs);
+
+		AssignmentAst result = null;
+
+		if (assign.ASSIGNMENT() != null) {
+			result = new AssignmentAst(left, right);
+		} else if (assign.ADD_ASSIGN() != null) {
+			result = new AssignmentAst(left, "+=", right);
+		} else if (assign.SUB_ASSIGN() != null) {
+			result = new AssignmentAst(left, "-=", right);
+		} else if (assign.DIV_ASSIGN() != null) {
+			result = new AssignmentAst(left, "/=", right);
+		} else if (assign.MUL_ASSIGN() != null) {
+			result = new AssignmentAst(left, "*=", right);
+		} else if (assign.MOD_ASSIGN() != null) {
+			result = new AssignmentAst(left, "%=", right);
+		} else if (assign.AND_ASSIGN() != null) {
+			result = new AssignmentAst(left, "&=", right);
+		} else if (assign.OR_ASSIGN() != null) {
+			result = new AssignmentAst(left, "|=", right);
+		} else if (assign.XOR_ASSIGN() != null) {
+			result = new AssignmentAst(left, "^=", right);
+		} else if (assign.RSHIFT_ASSIGN() != null) {
+			result = new AssignmentAst(left, ">>=", right);
+		} else if (assign.LSHIFT_ASSIGN() != null) {
+			result = new AssignmentAst(left, "<<=", right);
+		}
+
+		return result;
 	}
 
 	public Ast walkCastExpression(CastExpressionContext cst) {
